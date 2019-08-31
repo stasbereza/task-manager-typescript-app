@@ -1,11 +1,36 @@
 // Core
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 // Components
 import PagerButton from './PagerButton';
 // Instruments
+import { AppState } from '../../redux/reducers';
+import { ITasksState, ISortState, IPagerState } from '../../redux/actions/types';
 import { fetchTasksOnChangePage } from '../../redux/actions/tasks';
+
+interface PagerProps {
+  items: ITasksState['tasks'];
+  initialPage: IPagerState['currentPage'];
+  totalItems: IPagerState['totalItems'];
+  pageSize: IPagerState['pageSize'];
+  sortField: ISortState['sortField'];
+  sortDirection: ISortState['sortDirection'];
+  fetchTasksOnChangePage: (page: number, sortField: string, sortDirection: string) => void;
+}
+
+interface PagerState {
+  pager: {
+    totalItems: number;
+    currentPage: number;
+    pageSize: number;
+    totalPages: number;
+    startPage: number;
+    endPage: number;
+    startIndex: number;
+    endIndex: number;
+    pages: Array<number>;
+  }
+}
 
 const styles = {
   list: {
@@ -16,28 +41,19 @@ const styles = {
   },
 };
 
-class Pager extends Component {
-  static propTypes = {
-    items: PropTypes.arrayOf(PropTypes.shape({})),
-    totalItems: PropTypes.number,
-    initialPage: PropTypes.number,
-    pageSize: PropTypes.number,
-    sortField: PropTypes.string,
-    sortDirection: PropTypes.string,
-    onChangePage: PropTypes.func,
-  };
-
-  static defaultProps = {
-    items: [],
-    totalItems: null,
-    initialPage: 1,
+class Pager extends Component<PagerProps, PagerState> {
+  state = { pager: {
+    totalItems: 0,
+    currentPage: 1,
     pageSize: 3,
-    sortField: '',
-    sortDirection: '',
-    onChangePage: () => null,
-  };
+    totalPages: 0,
+    startPage: 1,
+    endPage: 1,
+    startIndex: 0,
+    endIndex: 0,
+    pages: [] as number[],
+  } };
 
-  state = { pager: {} };
 
   componentDidMount() {
     // set page if items array isn't empty
@@ -46,7 +62,7 @@ class Pager extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: PagerProps) {
     // reset page if initialPage has changed
     if (
       this.props.initialPage !== prevProps.initialPage ||
@@ -56,7 +72,7 @@ class Pager extends Component {
     }
   }
 
-  setPage = page => {
+  setPage = (page: number) => {
     const { totalItems, pageSize, sortField, sortDirection } = this.props;
     // calculate total pages
     const totalPages = Math.ceil(totalItems / pageSize);
@@ -74,22 +90,21 @@ class Pager extends Component {
     this.setState({ pager });
 
     // call change page function
-    this.props.onChangePage(page, sortField, sortDirection);
+    this.props.fetchTasksOnChangePage(page, sortField, sortDirection);
   };
 
-  getPager = (totalItems, currentPage, pageSize) => {
+  getPager = (totalItems: number, currentPage: number, pageSize: number) => {
     // calculate total pages
     const totalPages = Math.ceil(totalItems / pageSize);
 
-    let startPage;
-    let endPage;
+    let startPage: number;
+    let endPage: number;
     if (totalPages <= 10) {
       // less than 10 total pages so show all
       startPage = 1;
       endPage = totalPages;
     } else {
       // more than 10 total pages so calculate start and end pages
-      // eslint-disable-next-line no-lonely-if
       if (currentPage <= 6) {
         startPage = 1;
         endPage = 10;
@@ -176,21 +191,16 @@ class Pager extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  items: state.tasks.data,
-  totalItems: state.pager.totalItems,
+const mapStateToProps = (state: AppState) => ({
+  items: state.tasks.tasks,
   initialPage: state.pager.currentPage,
+  totalItems: state.pager.totalItems,
   pageSize: state.pager.pageSize,
   sortField: state.sort.sortField,
   sortDirection: state.sort.sortDirection,
 });
 
-const mapDispatchToProps = dispatch => ({
-  onChangePage: (page, sortField, sortDirection) =>
-    dispatch(fetchTasksOnChangePage(page, sortField, sortDirection)),
-});
-
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  { fetchTasksOnChangePage }
 )(Pager);

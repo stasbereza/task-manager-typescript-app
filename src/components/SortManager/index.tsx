@@ -4,14 +4,20 @@ import { connect } from 'react-redux';
 // Components
 import Button from '../shared/Button';
 // Instruments
-import Sort from '../../interfaces/Sort.interface';
+import { Sort } from '../../interfaces/Sort.interface';
+import { AppState } from '../../redux/reducers';
+import { ISortState, IPagerState } from '../../redux/actions/types';
 import { fetchSortedTasks } from '../../redux/actions/tasks';
 
-interface Props {
-  page: number;
-  currentSortField: string;
-  currentSortDirection: string;
-  onFetchSortedTasks: ({ page, sortField, sortDirection }: Sort) => void;
+interface SortProps {
+  currentPage: IPagerState['currentPage'];
+  currentSortField: ISortState['sortField'];
+  currentSortDirection: ISortState['sortDirection'];
+  fetchSortedTasks: ({
+    currentPage,
+    sortField,
+    sortDirection,
+  }: Sort) => void;
 }
 
 const styles = {
@@ -32,16 +38,15 @@ const sortParams = [
   { sortField: 'status', sortDirection: { asc: 'asc', desc: 'desc' } },
 ];
 
-class SortManager extends Component<Props> {
+export class SortManager extends Component<SortProps> {
   handleFetchSortedTasks = (
     sortField: string,
     sortDirection: { asc: string; desc: string },
   ) => {
     const {
-      page,
+      currentPage,
       currentSortField,
       currentSortDirection,
-      onFetchSortedTasks,
     } = this.props;
 
     const changedSortDirection =
@@ -49,13 +54,13 @@ class SortManager extends Component<Props> {
 
     const fetchTasks =
       currentSortField !== sortField
-        ? onFetchSortedTasks({
-            page,
+        ? this.props.fetchSortedTasks({
+            currentPage,
             sortField,
             sortDirection: sortDirection.asc,
           })
-        : onFetchSortedTasks({
-            page,
+        : this.props.fetchSortedTasks({
+            currentPage,
             sortField: currentSortField,
             sortDirection: changedSortDirection,
           });
@@ -68,6 +73,7 @@ class SortManager extends Component<Props> {
 
     const sortButtonsJSX = sortParams.map(sortParam => {
       const { sortField, sortDirection } = sortParam;
+
       const renderSortDirection =
         sortField === currentSortField ? currentSortDirection : '';
 
@@ -76,7 +82,8 @@ class SortManager extends Component<Props> {
           key={sortField}
           isOrangeBgColor
           active={sortField === currentSortField}
-          onClick={() => this.handleFetchSortedTasks(sortField, sortDirection)}>
+          onClick={() => this.handleFetchSortedTasks(sortField, sortDirection)}
+        >
           {`Sort by ${sortField} ${renderSortDirection}`}
         </Button>
       );
@@ -86,18 +93,13 @@ class SortManager extends Component<Props> {
   }
 }
 
-const mapStateToProps = state => ({
-  page: state.pager.currentPage,
+const mapStateToProps = (state: AppState) => ({
+  currentPage: state.pager.currentPage,
   currentSortField: state.sort.sortField,
   currentSortDirection: state.sort.sortDirection,
 });
 
-const mapDispatchToProps = dispatch => ({
-  onFetchSortedTasks: ({ page, sortField, sortDirection }: Sort) =>
-    dispatch(fetchSortedTasks({ page, sortField, sortDirection })),
-});
-
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  { fetchSortedTasks }
 )(SortManager);

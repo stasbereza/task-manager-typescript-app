@@ -1,10 +1,14 @@
 // Core
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, {SFC} from 'react';
 // Instruments
 import styles from './styles.module.css';
 
-const Loader = ({ width, height }) => (
+interface LoaderProps {
+  width: number;
+  height: number;
+}
+
+const Loader: SFC<LoaderProps> = ({ width, height }) => (
   <div className={styles.backdrop}>
     <div className={styles.sk_fading_circle} style={{ width, height }}>
       <div className={`${styles.sk_circle1} ${styles.sk_circle}`} />
@@ -22,15 +26,5 @@ const Loader = ({ width, height }) => (
     </div>
   </div>
 );
-
-Loader.propTypes = {
-  width: PropTypes.number,
-  height: PropTypes.number,
-};
-
-Loader.defaultProps = {
-  width: 40,
-  height: 40,
-};
 
 export default Loader;

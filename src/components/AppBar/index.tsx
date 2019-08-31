@@ -5,11 +5,11 @@ import Container from '../ui/container';
 // Instruments
 import styles from './styles.module.css';
 
-interface Props {
+interface AppBarProps {
   children: ReactNode;
 }
 
-const AppBar: FunctionComponent<Props> = ({ children }) => (
+const AppBar: FunctionComponent<AppBarProps> = ({ children }) => (
   <header className={styles.header}>
     <Container
       styles={{

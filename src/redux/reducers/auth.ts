@@ -1,35 +1,37 @@
 import { combineReducers } from 'redux';
 import {
+  ISystemState,
+  SystemActionTypes,
   SIGN_IN_REQUEST,
   SIGN_IN_SUCCESS,
   SIGN_IN_FAIL,
   SIGN_OUT,
 } from '../actions/types';
 
-const initialState = {
+const initialSystemState: ISystemState = {
   admin: {
-    login: null,
-    password: null,
+    login: '',
+    password: '',
   },
   authenticated: false,
-  error: null,
+  error: null
 };
 
-function admin(state = { login: null, password: null }, { type, payload }) {
-  switch (type) {
+function admin(state = initialSystemState.admin, action: SystemActionTypes) {
+  switch (action.type) {
     case SIGN_IN_SUCCESS:
-      return payload;
+      return action.payload;
 
     case SIGN_OUT:
-      return { name: null, login: null };
+      return initialSystemState.admin;
 
     default:
       return state;
   }
 }
 
-function authenticated(state = false, { type }) {
-  switch (type) {
+function authenticated(state = initialSystemState.authenticated, action: SystemActionTypes) {
+  switch (action.type) {
     case SIGN_IN_SUCCESS:
       return true;
 
@@ -41,15 +43,15 @@ function authenticated(state = false, { type }) {
   }
 }
 
-function error(state = null, { type, payload }) {
-  switch (type) {
+function error(state = initialSystemState.error, action: SystemActionTypes) {
+  switch (action.type) {
     case SIGN_IN_REQUEST:
     case SIGN_IN_SUCCESS:
     case SIGN_OUT:
       return null;
 
     case SIGN_IN_FAIL:
-      return payload;
+      return action.payload;
 
     default:
       return state;

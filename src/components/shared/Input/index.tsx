@@ -1,31 +1,27 @@
 // Core
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { SFC, HTMLAttributes, ChangeEvent, CSSProperties } from 'react';
 // Instruments
 import styles from './styles.module.css';
 
-const Input = ({ type, name, value, placeholder, onChange }) => (
+interface InputProps extends HTMLAttributes<HTMLInputElement> {
+  type: string;
+  name: string;
+  value: string;
+  style?: CSSProperties;
+  placeholder?: string;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+}
+
+const Input: SFC<InputProps> = ({ type, name, value, style, placeholder, onChange }) => (
   <input
     type={type}
     name={name}
     value={value}
+    style={style}
     className={styles.input}
     placeholder={placeholder}
     onChange={onChange}
   />
 );
-
-Input.propTypes = {
-  type: PropTypes.string,
-  name: PropTypes.string.isRequired,
-  value: PropTypes.string.isRequired,
-  placeholder: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-};
-
-Input.defaultProps = {
-  type: 'text',
-  placeholder: '',
-};
 
 export default Input;

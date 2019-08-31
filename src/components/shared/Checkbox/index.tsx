@@ -1,7 +1,19 @@
-// Core
-import React from 'react';
-import PropTypes from 'prop-types';
+  // Core
+import React, { SFC, ReactNode, HTMLAttributes, ChangeEvent } from 'react';
 import styled from 'styled-components';
+
+interface CheckboxProps extends HTMLAttributes<HTMLInputElement> {
+  className?: string;
+  checked: boolean;
+  disabled: boolean;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void
+}
+
+interface StyledCheckboxProps {
+  children?: ReactNode;
+  checked: boolean;
+  disabled: boolean;
+}
 
 const CheckboxContainer = styled.div`
   display: inline-block;
@@ -27,7 +39,7 @@ const HiddenCheckbox = styled.input.attrs({ type: 'checkbox' })`
   width: 1px;
 `;
 
-const StyledCheckbox = styled.div`
+const StyledCheckbox = styled.div<StyledCheckboxProps>`
   display: inline-block;
   width: 16px;
   height: 16px;
@@ -44,9 +56,9 @@ const StyledCheckbox = styled.div`
   }
 `;
 
-const Checkbox = ({ className, checked, disabled, ...props }) => (
+const Checkbox: SFC<CheckboxProps> = ({ className, checked, disabled, id, onChange }) => (
   <CheckboxContainer className={className}>
-    <HiddenCheckbox checked={checked} disabled={disabled} {...props} />
+    <HiddenCheckbox checked={checked} disabled={disabled} id={id} onChange={onChange} />
     <StyledCheckbox checked={checked} disabled={disabled}>
       <Icon viewBox="0 0 24 24">
         <polyline points="20 6 9 17 4 12" />
@@ -54,17 +66,5 @@ const Checkbox = ({ className, checked, disabled, ...props }) => (
     </StyledCheckbox>
   </CheckboxContainer>
 );
-
-Checkbox.propTypes = {
-  className: PropTypes.string,
-  checked: PropTypes.bool,
-  disabled: PropTypes.bool,
-};
-
-Checkbox.defaultProps = {
-  className: '',
-  checked: false,
-  disabled: false,
-};
 
 export default Checkbox;

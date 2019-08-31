@@ -1,25 +1,25 @@
 import { combineReducers } from 'redux';
-import { CHANGE_SORT_FIELD, CHANGE_SORT_DIRECTION } from '../actions/types';
+import { ISortState, CHANGE_SORT_FIELD, CHANGE_SORT_DIRECTION, SortActionTypes } from '../actions/types';
 
-const initialState = {
+const initialSortState: ISortState = {
   sortField: '',
   sortDirection: '',
 };
 
-function sortFieldReducer(state = '', { type, payload }) {
-  switch (type) {
+function sortFieldReducer(state = initialSortState.sortField, action: SortActionTypes) {
+  switch (action.type) {
     case CHANGE_SORT_FIELD:
-      return payload;
+      return action.payload;
 
     default:
       return state;
   }
 }
 
-function sortDirectionReducer(state = '', { type, payload }) {
-  switch (type) {
+function sortDirectionReducer(state = initialSortState.sortDirection, action: SortActionTypes) {
+  switch (action.type) {
     case CHANGE_SORT_DIRECTION:
-      return payload;
+      return action.payload;
 
     default:
       return state;

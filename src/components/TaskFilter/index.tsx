@@ -1,34 +1,35 @@
 // Core
-import React from 'react';
+import React, { SFC } from 'react';
 import { connect } from 'react-redux';
 // Components
 import Input from '../shared/Input';
 // Instruments
+import { IFilterState } from '../../redux/actions/types';
 import { changeFilter } from '../../redux/actions/tasks';
 import styles from './styles.module.css';
 
-const TaskFilter = ({ filter, onFilterChange }) => (
+interface FilterProps {
+  filter: IFilterState['filter'],
+  changeFilter: (filter: IFilterState['filter']) => void;
+}
+
+const TaskFilter: SFC<FilterProps> = ({ filter, changeFilter }) => (
   <form className={styles.form}>
     <Input
+      type="text"
       name="text"
       value={filter}
       placeholder="Filter by username and email..."
-      onChange={({ target: { value } }) => onFilterChange(value)}
+      onChange={({ target: { value } }) => changeFilter(value)}
     />
   </form>
 );
 
-const mapStateToProps = (state: { filter: string }) => ({
+const mapStateToProps = (state: IFilterState) => ({
   filter: state.filter,
-});
-
-const mapDispatchToProps = (
-  dispatch: (arg0: { type: string; payload: string }) => void,
-) => ({
-  onFilterChange: (filter: string) => dispatch(changeFilter(filter)),
 });
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  { changeFilter }
 )(TaskFilter);

@@ -1,4 +1,4 @@
-export default interface Task {
+export interface Task {
   id?: number;
   username: string;
   email: string;

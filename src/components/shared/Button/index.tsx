@@ -1,13 +1,22 @@
 // Core
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { SFC, ReactNode, HTMLAttributes, MouseEvent } from 'react';
 import classNames from 'classnames/bind';
 // Instruments
 import styles from './styles.module.css';
 
 const cx = classNames.bind(styles);
 
-const Button = ({
+type ButtonType = "button" | "submit";
+interface ButtonProps extends HTMLAttributes<HTMLButtonElement> {
+  type?: ButtonType;
+  active?: boolean;
+  disabled?: boolean;
+  children: ReactNode;
+  isOrangeBgColor?: boolean;
+  onClick?: (event: MouseEvent) => void;
+}
+
+const Button: SFC<ButtonProps> = ({
   type,
   active,
   disabled,
@@ -31,28 +40,6 @@ const Button = ({
       {children}
     </button>
   );
-};
-
-Button.propTypes = {
-  type: PropTypes.string,
-  active: PropTypes.bool,
-  disabled: PropTypes.bool,
-  isOrangeBgColor: PropTypes.bool,
-  children: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.element,
-    PropTypes.shape({}),
-  ]),
-  onClick: PropTypes.func,
-};
-
-Button.defaultProps = {
-  type: 'button',
-  active: false,
-  disabled: false,
-  isOrangeBgColor: false,
-  children: '',
-  onClick: () => {},
 };
 
 export default Button;

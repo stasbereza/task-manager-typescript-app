@@ -1,8 +1,8 @@
 import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
+import thunk from 'redux-thunk';
 import logger from 'redux-logger';
 import rootReducer from './reducers';
-import thunk from './middleware/thunk';
 import session from './middleware/auth';
 
 const middleware = [logger, thunk, session];
@@ -12,7 +12,7 @@ const enhancer = composeWithDevTools(applyMiddleware(...middleware));
 let sessionState = null;
 
 try {
-  sessionState = JSON.parse(localStorage.getItem('session'));
+  sessionState = JSON.parse(localStorage.getItem('session') || '');
 } catch (err) {
   console.log(err);
 }

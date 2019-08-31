@@ -1,13 +1,21 @@
 // Core
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { SFC, ReactNode, HTMLAttributes, MouseEvent } from 'react';
 import classNames from 'classnames/bind';
 // Instruments
 import styles from './styles.module.css';
 
 const cx = classNames.bind(styles);
 
-const Button = ({ type, active, disabled, children, onClick }) => {
+type ButtonType = "button" | "submit";
+interface PagerButtonProps extends HTMLAttributes<HTMLButtonElement> {
+  type?: ButtonType;
+  active?: boolean;
+  disabled?: boolean;
+  children: ReactNode;
+  onClick?: (event: MouseEvent) => void;
+}
+
+const PagerButton: SFC<PagerButtonProps> = ({ type, active, disabled, children, onClick }) => {
   const btnCls = cx({
     button: true,
     active,
@@ -25,20 +33,4 @@ const Button = ({ type, active, disabled, children, onClick }) => {
   );
 };
 
-Button.propTypes = {
-  type: PropTypes.string,
-  active: PropTypes.bool,
-  disabled: PropTypes.bool,
-  children: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  onClick: PropTypes.func,
-};
-
-Button.defaultProps = {
-  type: 'button',
-  active: false,
-  disabled: false,
-  children: '',
-  onClick: () => {},
-};
-
-export default Button;
+export default PagerButton;

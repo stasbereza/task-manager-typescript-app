@@ -1,32 +1,38 @@
 // Core
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component, FormEvent, MouseEvent } from 'react';
 // Components
 import Button from '../Button';
 // Instruments
 import styles from './styles.module.css';
 
-export default class EditableInput extends Component {
-  static propTypes = {
-    text: PropTypes.string.isRequired,
-    onEditSuccess: PropTypes.func.isRequired,
-    onEditAbort: PropTypes.func.isRequired,
-  };
+interface EditableInputProps {
+  text: string;
+  onEditSuccess: (text: { text: string }) => void;
+  onEditAbort: () => void;
+}
 
-  state = {
+interface EditableInputState {
+  text: string;
+}
+
+export default class EditableInput extends Component<
+  EditableInputProps,
+  EditableInputState
+> {
+  state: EditableInputState = {
     text: this.props.text,
   };
 
-  handleInputChange = ({ target: { name, value } }) =>
-    this.setState({ [name]: value });
+  handleInputChange = ({ target: { value } }: { target: { value: string } }) =>
+    this.setState({ text: value });
 
-  handleEditSuccess = e => {
+  handleEditSuccess = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     this.props.onEditSuccess(this.state);
   };
 
-  handleEditCancel = e => {
+  handleEditCancel = (e: MouseEvent) => {
     e.preventDefault();
 
     this.props.onEditAbort();

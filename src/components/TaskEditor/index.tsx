@@ -1,23 +1,24 @@
 // Core
-import React, { Component } from 'react';
+import React, { Component, FormEvent } from 'react';
 import { connect } from 'react-redux';
 // Components
+import Input from '../shared/Input';
 import Button from '../shared/Button';
 // Instruments
-import Task from '../../interfaces/Task.interface';
+import { INewTask } from '../../redux/actions/types';
 import { addTask } from '../../redux/actions/tasks';
 import styles from './styles.module.css';
 
-interface Props {
-  onAddTask: (task: Task) => void;
+interface TaskEditorProps {
+  addTask: (task: INewTask) => void;
   onCancel: () => void;
 }
 
-interface State {
-  username: string;
-  email: string;
-  text: string;
-}
+// interface State {
+//   username: string;
+//   email: string;
+//   text: string;
+// }
 
 const INITIAL_STATE = {
   username: '',
@@ -25,7 +26,7 @@ const INITIAL_STATE = {
   text: '',
 };
 
-class TaskEditor extends Component<Props, State> {
+export class TaskEditor extends Component<TaskEditorProps> {
   state = { ...INITIAL_STATE };
 
   handleInputChange = ({
@@ -34,16 +35,17 @@ class TaskEditor extends Component<Props, State> {
     target: { name: string; value: string };
   }) => this.setState({ [name]: value });
 
-  handleSubmit = e => {
+  handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { username, email, text } = this.state;
 
     if (username === '' || email === '' || text === '') {
       return;
     }
+
     const newTask = this.state;
 
-    this.props.onAddTask(newTask);
+    this.props.addTask(newTask);
     this.props.onCancel();
     this.resetState();
   };
@@ -56,14 +58,16 @@ class TaskEditor extends Component<Props, State> {
 
     return (
       <form onSubmit={this.handleSubmit} className={styles.form}>
-        <input
+        <Input
+          type='input'
           name="username"
           value={username}
           className={styles.input}
           placeholder="User name"
           onChange={this.handleInputChange}
         />
-        <input
+        <Input
+          type='input'
           name="email"
           value={email}
           className={styles.input}
@@ -87,11 +91,4 @@ class TaskEditor extends Component<Props, State> {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  onAddTask: (task: Task) => dispatch(addTask(task)),
-});
-
-export default connect(
-  null,
-  mapDispatchToProps,
-)(TaskEditor);
+export default connect(null, { addTask })(TaskEditor);

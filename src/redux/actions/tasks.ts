@@ -1,8 +1,17 @@
 import axios from 'axios';
 import MD5 from 'md5';
+import { Action, Dispatch } from 'redux';
+import { ThunkAction } from 'redux-thunk';
+import { AppState } from '../reducers';
 import {
-  Task,
-  Tasks,
+  ITask,
+  INewTask,
+  ITaskToUpdateText,
+  ITaskToUpdateStatus,
+  TasksActionTypes,
+  PagerActionTypes,
+  SortActionTypes,
+  FilterActionType,
   FETCH_TASKS_START,
   FETCH_TASKS_SUCCESS,
   FETCH_TASKS_FAIL,
@@ -15,104 +24,102 @@ import {
   CHANGE_PAGE,
   CHANGE_FILTER,
 } from './types';
-import Sort from '../../interfaces/Sort.interface';
-import { string } from 'prop-types';
+import { Sort } from '../../interfaces/Sort.interface';
 
 const URL = 'https://uxcandy.com/~shapoval/test-task-backend';
 
-// interface AxiosInstance {
-//   request<T = any, R = AxiosResponse<T>> (config: AxiosRequestConfig): Promise<R>;
-// }
-
-const fetchTasksStart = () => ({
+const fetchTasksStart = (): TasksActionTypes => ({
   type: FETCH_TASKS_START,
 });
 
-const fetchTasksSuccess = (tasks: Tasks) => ({
+const fetchTasksSuccess = (tasks: ITask[]): TasksActionTypes => ({
   type: FETCH_TASKS_SUCCESS,
   payload: tasks,
 });
 
-const fetchTasksFail = (error: string) => ({
+const fetchTasksFail = (error: string | null): TasksActionTypes => ({
   type: FETCH_TASKS_FAIL,
   payload: error,
 });
 
-const changeSortField = (sortField: string) => ({
-  type: CHANGE_SORT_FIELD,
-  payload: sortField,
-});
-
-const changeSortDirection = (sortDirection: string) => ({
-  type: CHANGE_SORT_DIRECTION,
-  payload: sortDirection,
-});
-
-const changePage = (currentPage: number) => ({
-  type: CHANGE_PAGE,
-  payload: currentPage,
-});
-
-const updateTasksAmount = (totalTasks: number) => ({
+const updateTasksAmount = (totalTasks: number): PagerActionTypes => ({
   type: UPDATE_TASKS_AMOUNT,
   payload: totalTasks,
 });
 
-const addTaskSuccess = (task: Task) => ({
+const addTaskSuccess = (task: ITask): TasksActionTypes => ({
   type: ADD_TASK_SUCCESS,
   payload: task,
 });
 
-const updateTaskTextSuccess = (task: Task) => ({
+const updateTaskTextSuccess = (task: ITaskToUpdateText): TasksActionTypes => ({
   type: UPDATE_TASK_TEXT_SUCCESS,
   payload: task,
 });
 
-const updateTaskStatusSuccess = (task: Task) => ({
+const updateTaskStatusSuccess = (
+  task: ITaskToUpdateStatus,
+): TasksActionTypes => ({
   type: UPDATE_TASK_STATUS_SUCCESS,
   payload: task,
 });
 
-export const changeFilter = (filter: string) => ({
+const changeSortField = (sortField: string): SortActionTypes => ({
+  type: CHANGE_SORT_FIELD,
+  payload: sortField,
+});
+
+const changeSortDirection = (sortDirection: string): SortActionTypes => ({
+  type: CHANGE_SORT_DIRECTION,
+  payload: sortDirection,
+});
+
+const changePage = (currentPage: number): PagerActionTypes => ({
+  type: CHANGE_PAGE,
+  payload: currentPage,
+});
+
+export const changeFilter = (filter: string): FilterActionType => ({
   type: CHANGE_FILTER,
   payload: filter,
 });
 
-export const fetchTasks = ({
-  page,
-  sortField,
-  sortDirection,
-}: Sort) => (dispatch: {
-  (arg0: { type: string | number | object }): void;
-}) => {
-  dispatch(fetchTasksStart());
-  dispatch(changePage(page));
-  dispatch(changeSortField(sortField));
-  dispatch(changeSortDirection(sortDirection));
+export function fetchTasks(sort: Sort): ThunkAction<void, AppState, null, Action<string>> {
+  const { currentPage, sortField, sortDirection } = sort;
 
-  axios
-    .get(
-      `${URL}/?sort_field=${sortField}&sort_direction=${sortDirection}&page=${page}&developer=Stanislav`,
-    )
-    .then(({ data: { message: { tasks, total_task_count: totalTasks } } }) => {
+  return async (dispatch) => {
+    dispatch(fetchTasksStart());
+    dispatch(changePage(currentPage));
+    dispatch(changeSortField(sortField));
+    dispatch(changeSortDirection(sortDirection));
+
+    try {
+      const response = await axios.get(
+        `${URL}/?sort_field=${sortField}&sort_direction=${sortDirection}&page=${currentPage}&developer=Stanislav`,
+      );
+      const {
+        data: {
+          message: { tasks, total_task_count: totalTasks },
+        },
+      } = response;
       dispatch(fetchTasksSuccess(tasks));
       dispatch(updateTasksAmount(Number(totalTasks)));
-    })
-    .catch(err => dispatch(fetchTasksFail(err)));
-};
+    } catch (err) {
+      dispatch(fetchTasksFail(err));
+    }
+  };
+}
 
 export const fetchTasksOnChangePage = (
-  page: number,
+  currentPage: number,
   sortField: string,
   sortDirection: string,
-) => (dispatch: {
-  (arg0: { type: string; payload: number | string | Tasks }): void;
-}) => {
-  dispatch(changePage(page));
+): ThunkAction<void, AppState, null, Action<string>> => dispatch => {
+  dispatch(changePage(currentPage));
 
   axios
     .get(
-      `${URL}/?sort_field=${sortField}&sort_direction=${sortDirection}&page=${page}&developer=Stanislav`,
+      `${URL}/?sort_field=${sortField}&sort_direction=${sortDirection}&page=${currentPage}&developer=Stanislav`,
     )
     .then(({ data: { message: { tasks, total_task_count: totalTasks } } }) => {
       dispatch(fetchTasksSuccess(tasks));
@@ -122,19 +129,21 @@ export const fetchTasksOnChangePage = (
 };
 
 export const fetchSortedTasks = ({
-  page,
+  currentPage,
   sortField,
   sortDirection,
-}: Sort) => (dispatch: {
-  (arg0: { type: string }): string | number | Tasks;
-}) => {
+}: {
+  currentPage: number;
+  sortField: string;
+  sortDirection: string;
+}): ThunkAction<void, AppState, null, Action<string>> => dispatch => {
   dispatch(fetchTasksStart());
   dispatch(changeSortField(sortField));
   dispatch(changeSortDirection(sortDirection));
 
   axios
     .get(
-      `${URL}/?sort_field=${sortField}&sort_direction=${sortDirection}&page=${page}&developer=Stanislav`,
+      `${URL}/?sort_field=${sortField}&sort_direction=${sortDirection}&page=${currentPage}&developer=Stanislav`,
     )
     .then(({ data: { message: { tasks, total_task_count: totalTasks } } }) => {
       dispatch(fetchTasksSuccess(tasks));
@@ -143,37 +152,33 @@ export const fetchSortedTasks = ({
     .catch(err => dispatch(fetchTasksFail(err)));
 };
 
-export const addTask = ({ username, email, text }: Task) => (
-  dispatch: (arg0: { type: string; payload: Task }) => void,
-) => {
+export const addTask = ({
+  username,
+  email,
+  text,
+}: INewTask): ThunkAction<void, AppState, null, Action<string>> => dispatch => {
   const task = new FormData();
   task.append('username', username);
   task.append('email', email);
   task.append('text', text);
 
-  axios({
-    method: 'post',
-    url: `${URL}/create?developer=Stanislav`,
-    crossDomain: true,
-    mimeType: 'multipart/form-data',
-    contentType: false,
-    processData: false,
-    dataType: 'json',
-    data: task,
-  }).then(({ data: { message } }: { data: { message: Task } }) =>
-    dispatch(addTaskSuccess(message)),
-  );
+  axios
+    .post(`${URL}/create?developer=Stanislav`, task)
+    .then(({ data: { message } }: { data: { message: ITask } }) => {
+      console.log(message);
+      dispatch(addTaskSuccess(message));
+    });
 };
 
 export const updateTaskText = ({
   id,
   text: { text },
-  token = 'beejee',
+  token,
 }: {
   id: number;
   text: { text: string };
   token: string;
-}) => (dispatch: (arg0: { type: string; payload: Task }) => void) => {
+}): ThunkAction<void, AppState, null, Action<string>> => dispatch => {
   const taskToUpdate = { id, text };
   const url = `text=${text}&token=${token}`;
   const encodedUrl = encodeURI(url);
@@ -182,11 +187,6 @@ export const updateTaskText = ({
   axios({
     method: 'post',
     url: `${URL}/edit/${id}/?developer=Stanislav`,
-    crossDomain: true,
-    mimeType: 'multipart/form-data',
-    contentType: false,
-    processData: false,
-    dataType: 'string',
     data: `${url}&signature=${hex}`,
   }).then(
     ({ data }: { data: { status: string } }) =>
@@ -197,12 +197,12 @@ export const updateTaskText = ({
 export const updateTaskStatus = ({
   id,
   status,
-  token = 'beejee',
+  token,
 }: {
   id: number;
   status: number;
   token: string;
-}) => (dispatch: (arg0: { type: string; payload: Task }) => void) => {
+}): ThunkAction<void, AppState, null, Action<string>> => dispatch => {
   const taskToUpdate = { id, status };
   const url = `status=${status}&token=${token}`;
   const encodedUrl = encodeURI(url);
@@ -211,11 +211,6 @@ export const updateTaskStatus = ({
   axios({
     method: 'post',
     url: `${URL}/edit/${id}/?developer=Stanislav`,
-    crossDomain: true,
-    mimeType: 'multipart/form-data',
-    contentType: false,
-    processData: false,
-    dataType: 'string',
     data: `${url}&signature=${hex}`,
   }).then(
     ({ data }: { data: { status: string } }) =>

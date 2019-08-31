@@ -1,11 +1,13 @@
-import { CHANGE_FILTER } from '../actions/types';
+import { IFilterState, CHANGE_FILTER, FilterActionType } from '../actions/types';
 
-const initialState = '';
+const initialFilterState: IFilterState = {
+  filter: ''
+};
 
-export default function filterReducer(state = initialState, { type, payload }) {
-  switch (type) {
+export default function filterReducer(state = initialFilterState.filter, action: FilterActionType) {
+  switch (action.type) {
     case CHANGE_FILTER:
-      return payload;
+      return action.payload;
 
     default:
       return state;

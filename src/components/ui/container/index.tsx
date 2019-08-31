@@ -1,24 +1,17 @@
 // Core
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, { SFC, ReactNode } from 'react';
 
-const Container = ({ width = 1170, styles = {}, children }) => (
+interface ContainerProps {
+  width?: number;
+  styles?: React.CSSProperties;
+  children?: ReactNode;
+}
+
+const Container: SFC<ContainerProps> = ({ width = 1170, styles = {}, children }) => (
   <div
     style={{ maxWidth: width, margin: '0 auto', padding: '0 16px', ...styles }}>
     {children}
   </div>
 );
-
-Container.propTypes = {
-  width: PropTypes.number,
-  styles: PropTypes.shape({}),
-  children: PropTypes.node,
-};
-
-Container.defaultProps = {
-  width: 1170,
-  styles: {},
-  children: [],
-};
 
 export default Container;

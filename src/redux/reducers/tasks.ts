@@ -1,5 +1,7 @@
 import { combineReducers } from 'redux';
 import {
+  ITasksState,
+  TasksActionTypes,
   FETCH_TASKS_START,
   FETCH_TASKS_SUCCESS,
   FETCH_TASKS_FAIL,
@@ -8,25 +10,27 @@ import {
   UPDATE_TASK_STATUS_SUCCESS,
 } from '../actions/types';
 
-const initialState = {
-  data: [],
+const initialTasksState: ITasksState = {
+  tasks: [],
   loading: false,
   error: null,
 };
 
-function dataReducer(state = [], { type, payload }) {
-  switch (type) {
+function tasksReducer(state = initialTasksState.tasks, action: TasksActionTypes) {
+  switch (action.type) {
     case FETCH_TASKS_SUCCESS:
-      return payload;
+      return action.payload;
+
     case ADD_TASK_SUCCESS:
-      return [...state, payload];
+      return [...state, action.payload];
+
     case UPDATE_TASK_TEXT_SUCCESS:
       return state.map(task =>
-        task.id === payload.id ? { ...task, text: payload.text } : task,
+        task.id === action.payload.id ? { ...task, text: action.payload.text } : task,
       );
     case UPDATE_TASK_STATUS_SUCCESS:
       return state.map(task =>
-        task.id === payload.id ? { ...task, status: payload.status } : task,
+        task.id === action.payload.id ? { ...task, status: action.payload.status } : task,
       );
 
     default:
@@ -34,8 +38,8 @@ function dataReducer(state = [], { type, payload }) {
   }
 }
 
-function loadingReducer(state = false, { type }) {
-  switch (type) {
+function loadingReducer(state = initialTasksState.loading, action: TasksActionTypes) {
+  switch (action.type) {
     case FETCH_TASKS_START:
       return true;
 
@@ -51,15 +55,16 @@ function loadingReducer(state = false, { type }) {
   }
 }
 
-function errorReducer(state = null, { type, payload }) {
-  switch (type) {
+function errorReducer(state = initialTasksState.error, action: TasksActionTypes) {
+  switch (action.type) {
     case FETCH_TASKS_SUCCESS:
     case ADD_TASK_SUCCESS:
     case UPDATE_TASK_TEXT_SUCCESS:
     case UPDATE_TASK_STATUS_SUCCESS:
       return null;
+
     case FETCH_TASKS_FAIL:
-      return payload;
+      return action.payload;
 
     default:
       return state;
@@ -67,7 +72,8 @@ function errorReducer(state = null, { type, payload }) {
 }
 
 export default combineReducers({
-  data: dataReducer,
+  tasks: tasksReducer,
   loading: loadingReducer,
   error: errorReducer,
 });
+

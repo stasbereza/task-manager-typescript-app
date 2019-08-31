@@ -1,10 +1,12 @@
 // Core
-import React, { FunctionComponent, ReactNode } from 'react';
+import React, { FunctionComponent, CSSProperties } from 'react';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 // Components
 import Button from '../shared/Button';
 // Instruments
+import { AppState } from '../../redux/reducers';
+import { ISystemState } from '../../redux/actions/types';
 import { signOut } from '../../redux/actions/auth';
 
 interface PrivateActionsProps {
@@ -12,11 +14,11 @@ interface PrivateActionsProps {
 }
 
 interface AuthManagerProps {
-  authenticated: boolean;
-  // children: ReactNode;
+  authenticated: ISystemState['authenticated'];
+  signOut: () => void;
 }
 
-const styles = {
+const styles: { list: CSSProperties; link: CSSProperties; activeLink: CSSProperties; } = {
   list: {
     display: 'flex',
     listStyle: 'none',
@@ -43,7 +45,7 @@ const PublicActions = () => (
   <li>
     <NavLink
       to="/login"
-      // style={styles.link}
+      style={styles.link}
       activeStyle={styles.activeLink}>
       Log in
     </NavLink>
@@ -54,10 +56,7 @@ const PrivateActions: FunctionComponent<PrivateActionsProps> = ({
   signOut,
 }) => (
   <li>
-    <Button
-      onClick={async () => {
-        await signOut();
-      }}>
+    <Button onClick={async () => await signOut()}>
       Logout
     </Button>
   </li>
@@ -65,20 +64,18 @@ const PrivateActions: FunctionComponent<PrivateActionsProps> = ({
 
 const AuthManager: FunctionComponent<AuthManagerProps> = ({
   authenticated,
-  ...props
+  signOut
 }) => (
   <ul style={styles.list}>
     {authenticated ? <PrivateActions signOut={signOut} /> : <PublicActions />}
   </ul>
 );
 
-const mapStateToProps = (state: { auth: { authenticated: boolean } }) => ({
+const mapStateToProps = (state: AppState) => ({
   authenticated: state.auth.authenticated,
 });
 
-const mapDispatchToProps = { signOut };
-
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  { signOut }
 )(AuthManager);

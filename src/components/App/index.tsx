@@ -15,29 +15,24 @@ import Loader from '../shared/Loader';
 import Button from '../shared/Button';
 import Container from '../ui/container';
 // Instruments
+import { Sort } from '../../interfaces/Sort.interface';
+import { AppState } from '../../redux/reducers';
+import { ITasksState, ISortState, IPagerState } from '../../redux/actions/types';
 import { fetchTasks } from '../../redux/actions/tasks';
 
-interface Props {
-  isLoading: boolean;
-  page: number;
-  sortField: string;
-  sortDirection: string;
-  fetchTasks: ({
-    page,
-    sortField,
-    sortDirection,
-  }: {
-    page: number;
-    sortField: string;
-    sortDirection: string;
-  }) => void;
+if (process.env.NODE_ENV !== 'test') Modal.setAppElement('#root');
+
+interface AppProps {
+  isLoading: ITasksState['loading'];
+  currentPage: IPagerState['currentPage'];
+  sortField: ISortState['sortField'];
+  sortDirection: ISortState['sortDirection'];
+  fetchTasks: ({ currentPage, sortField, sortDirection }: Sort) => void;
 }
 
 interface State {
   isModalOpen: boolean;
 }
-
-Modal.setAppElement('#root');
 
 const styles = {
   modal: {
@@ -52,16 +47,17 @@ const styles = {
   },
 };
 
-class App extends Component<Props, State> {
+class App extends Component<AppProps, State> {
   state = {
     isModalOpen: false,
   };
 
   componentDidMount() {
-    const { page, sortField, sortDirection, fetchTasks } = this.props;
+    const { sortField, sortDirection } = this.props;
+    const { currentPage } = this.props;
 
-    fetchTasks({
-      page,
+    this.props.fetchTasks({
+      currentPage,
       sortField,
       sortDirection,
     });
@@ -105,18 +101,14 @@ class App extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: {
-  tasks: { loading: boolean };
-  pager: { currentPage: number };
-  sort: { sortField: string; sortDirection: string };
-}) => ({
+const mapStateToProps = (state: AppState) => ({
   isLoading: state.tasks.loading,
-  page: state.pager.currentPage,
+  currentPage: state.pager.currentPage,
   sortField: state.sort.sortField,
   sortDirection: state.sort.sortDirection,
 });
 
 export default connect(
   mapStateToProps,
-  { fetchTasks },
+  { fetchTasks }
 )(App);

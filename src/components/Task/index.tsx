@@ -1,41 +1,59 @@
 // Core
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component, ChangeEvent } from 'react';
 import { connect } from 'react-redux';
 // Components
 import Checkbox from '../shared/Checkbox';
 import EditableInput from '../shared/EditableInput';
 import Button from '../shared/Button';
 // Instruments
+import { AppState } from '../../redux/reducers';
+import { ITask, ISystemState } from '../../redux/actions/types';
 import { updateTaskText, updateTaskStatus } from '../../redux/actions/tasks';
 import styles from './styles.module.css';
 
-class Task extends Component {
-  static propTypes = {
-    id: PropTypes.number.isRequired,
-    username: PropTypes.string.isRequired,
-    email: PropTypes.string.isRequired,
-    text: PropTypes.string.isRequired,
-    status: PropTypes.number.isRequired,
-    authenticated: PropTypes.bool.isRequired,
-    onUpdateTaskText: PropTypes.func.isRequired,
-    onUpdateTaskStatus: PropTypes.func.isRequired,
-  };
+interface TaskProps {
+  task: ITask;
+  authenticated: ISystemState['authenticated'];
+  updateTaskText: ({
+    id,
+    text,
+    token
+  }: {
+    id: number,
+    text: { text: string },
+    token: string
+  }) => void;
+  updateTaskStatus: ({
+    id,
+    status,
+    token
+  }: {
+    id: number,
+    status: number,
+    token: string
+  }) => void;
+}
 
-  state = { isBeingEdited: false, checked: false };
+interface TaskState {
+  isBeingEdited: boolean;
+  checked: boolean;
+}
+
+class Task extends Component<TaskProps, TaskState> {
+  state: TaskState = { isBeingEdited: false, checked: false };
 
   componentDidMount() {
-    if (this.props.status === 10) {
+    if (this.props.task.status === 10) {
       this.setState({
         checked: true,
       });
     }
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps: TaskProps, nextState: TaskState) {
     const propsChanged =
-      nextProps.text !== this.props.text ||
-      nextProps.status !== this.props.status ||
+      nextProps.task.text !== this.props.task.text ||
+      nextProps.task.status !== this.props.task.status ||
       nextProps.authenticated !== this.props.authenticated;
 
     const stateChanged =
@@ -49,31 +67,36 @@ class Task extends Component {
 
   onEditEnd = () => this.setState({ isBeingEdited: false });
 
-  handleCheckboxChange = ({ target: { checked } }) => {
-    this.setState({ checked }, () => {
+  handleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ checked: e.target.checked }, () => {
       const status = this.state.checked ? 10 : 0;
+      const token = 'beejee';
 
-      this.props.onUpdateTaskStatus({
-        id: this.props.id,
+      this.props.updateTaskStatus({
+        id: this.props.task.id,
         status,
+        token
       });
     });
   };
 
-  handleUpdate = text => {
-    this.props.onUpdateTaskText({ id: this.props.id, text });
+  handleUpdate = (text: { text: string }) => {
+    const token = 'beejee';
+
+    this.props.updateTaskText({ id: this.props.task.id, text, token });
     this.onEditEnd();
   };
 
   render() {
-    const { id, username, email, text, authenticated } = this.props;
+    const { authenticated } = this.props;
+    const { id, username, email, text } = this.props.task;
     const { checked, isBeingEdited } = this.state;
 
     return (
       <div className={styles.task}>
-        <label htmlFor={id} style={{ marginBottom: 8 }}>
+        <label htmlFor={String(id)} style={{ marginBottom: 8 }}>
           <Checkbox
-            id={id}
+            id={String(id)}
             checked={checked}
             disabled={!authenticated}
             onChange={this.handleCheckboxChange}
@@ -114,16 +137,13 @@ class Task extends Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: AppState) => ({
   authenticated: state.auth.authenticated,
 });
 
-const mapDispatchToProps = dispatch => ({
-  onUpdateTaskText: taskToUpdate => dispatch(updateTaskText(taskToUpdate)),
-  onUpdateTaskStatus: taskToUpdate => dispatch(updateTaskStatus(taskToUpdate)),
-});
+const mapDispatchToProps = { updateTaskText, updateTaskStatus };
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(Task);
