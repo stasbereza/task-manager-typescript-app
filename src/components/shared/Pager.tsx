@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 // Components
 import PagerButton from './PagerButton';
 // Instruments
+// import PagerProps from '../../interfaces/Pager.interface';
+// import ISort from '../../interfaces/Sort.interface';
 import { AppState } from '../../redux/reducers';
 import { ITasksState, ISortState, IPagerState } from '../../redux/actions/types';
 import { fetchTasksOnChangePage } from '../../redux/actions/tasks';

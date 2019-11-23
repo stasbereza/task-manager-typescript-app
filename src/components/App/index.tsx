@@ -15,7 +15,7 @@ import Loader from '../shared/Loader';
 import Button from '../shared/Button';
 import Container from '../ui/container';
 // Instruments
-import { Sort } from '../../interfaces/Sort.interface';
+import ISort from '../../interfaces/Sort.interface';
 import { AppState } from '../../redux/reducers';
 import { ITasksState, ISortState, IPagerState } from '../../redux/actions/types';
 import { fetchTasks } from '../../redux/actions/tasks';
@@ -27,7 +27,7 @@ interface AppProps {
   currentPage: IPagerState['currentPage'];
   sortField: ISortState['sortField'];
   sortDirection: ISortState['sortDirection'];
-  fetchTasks: ({ currentPage, sortField, sortDirection }: Sort) => void;
+  fetchTasks: ({ currentPage, sortField, sortDirection }: ISort) => void;
 }
 
 interface State {

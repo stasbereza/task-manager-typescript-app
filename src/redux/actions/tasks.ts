@@ -24,7 +24,7 @@ import {
   CHANGE_PAGE,
   CHANGE_FILTER,
 } from './types';
-import { Sort } from '../../interfaces/Sort.interface';
+import Sort from '../../interfaces/Sort.interface';
 
 const URL = 'https://uxcandy.com/~shapoval/test-task-backend';
 
@@ -32,49 +32,47 @@ const fetchTasksStart = (): TasksActionTypes => ({
   type: FETCH_TASKS_START,
 });
 
-const fetchTasksSuccess = (tasks: ITask[]): TasksActionTypes => ({
+export const fetchTasksSuccess = (tasks: ITask[]): TasksActionTypes => ({
   type: FETCH_TASKS_SUCCESS,
   payload: tasks,
 });
 
-const fetchTasksFail = (error: string | null): TasksActionTypes => ({
+export const fetchTasksFail = (error: string | null): TasksActionTypes => ({
   type: FETCH_TASKS_FAIL,
   payload: error,
 });
 
-const updateTasksAmount = (totalTasks: number): PagerActionTypes => ({
+export const updateTasksAmount = (totalTasks: number): PagerActionTypes => ({
   type: UPDATE_TASKS_AMOUNT,
   payload: totalTasks,
 });
 
-const addTaskSuccess = (task: ITask): TasksActionTypes => ({
+export const addTaskSuccess = (task: ITask): TasksActionTypes => ({
   type: ADD_TASK_SUCCESS,
   payload: task,
 });
 
-const updateTaskTextSuccess = (task: ITaskToUpdateText): TasksActionTypes => ({
+export const updateTaskTextSuccess = (task: ITaskToUpdateText): TasksActionTypes => ({
   type: UPDATE_TASK_TEXT_SUCCESS,
   payload: task,
 });
 
-const updateTaskStatusSuccess = (
-  task: ITaskToUpdateStatus,
-): TasksActionTypes => ({
+export const updateTaskStatusSuccess = (task: ITaskToUpdateStatus): TasksActionTypes => ({
   type: UPDATE_TASK_STATUS_SUCCESS,
   payload: task,
 });
 
-const changeSortField = (sortField: string): SortActionTypes => ({
+export const changeSortField = (sortField: string): SortActionTypes => ({
   type: CHANGE_SORT_FIELD,
   payload: sortField,
 });
 
-const changeSortDirection = (sortDirection: string): SortActionTypes => ({
+export const changeSortDirection = (sortDirection: string): SortActionTypes => ({
   type: CHANGE_SORT_DIRECTION,
   payload: sortDirection,
 });
 
-const changePage = (currentPage: number): PagerActionTypes => ({
+export const changePage = (currentPage: number): PagerActionTypes => ({
   type: CHANGE_PAGE,
   payload: currentPage,
 });
@@ -84,31 +82,49 @@ export const changeFilter = (filter: string): FilterActionType => ({
   payload: filter,
 });
 
-export function fetchTasks(sort: Sort): ThunkAction<void, AppState, null, Action<string>> {
-  const { currentPage, sortField, sortDirection } = sort;
+// export function fetchTasks (sort: Sort) {
+//   const { currentPage, sortField, sortDirection } = sort;
 
-  return async (dispatch) => {
+//   return async (dispatch: Dispatch) => {
+//     dispatch(fetchTasksStart());
+//     dispatch(changePage(currentPage));
+//     dispatch(changeSortField(sortField));
+//     dispatch(changeSortDirection(sortDirection));
+
+//     try {
+//       const response = await axios.get(
+//         `${URL}/?sort_field=${sortField}&sort_direction=${sortDirection}&page=${currentPage}&developer=Stanislav`,
+//       );
+//       const { data: { message: { tasks, total_task_count: totalTasks } } } = response;
+//       dispatch(fetchTasksSuccess(tasks));
+//       dispatch(updateTasksAmount(Number(totalTasks)));
+//     } catch (err) {
+//       dispatch(fetchTasksFail(err))
+//     }
+//   }
+// };
+
+export const fetchTasks = ({
+  currentPage,
+  sortField,
+  sortDirection,
+}: { currentPage: number,
+  sortField: string,
+  sortDirection: string }): ThunkAction<void, AppState, null, Action<string>> => async dispatch => {
     dispatch(fetchTasksStart());
     dispatch(changePage(currentPage));
     dispatch(changeSortField(sortField));
     dispatch(changeSortDirection(sortDirection));
 
-    try {
-      const response = await axios.get(
-        `${URL}/?sort_field=${sortField}&sort_direction=${sortDirection}&page=${currentPage}&developer=Stanislav`,
-      );
-      const {
-        data: {
-          message: { tasks, total_task_count: totalTasks },
-        },
-      } = response;
-      dispatch(fetchTasksSuccess(tasks));
-      dispatch(updateTasksAmount(Number(totalTasks)));
-    } catch (err) {
-      dispatch(fetchTasksFail(err));
-    }
-  };
-}
+  await axios.get(
+    `${URL}/?sort_field=${sortField}&sort_direction=${sortDirection}&page=${currentPage}&developer=Stanislav`,
+  )
+    .then(({ data: { message: { tasks, total_task_count: totalTasks } } }) => {
+    dispatch(fetchTasksSuccess(tasks));
+    dispatch(updateTasksAmount(Number(totalTasks)));
+  })
+    .catch(err => dispatch(fetchTasksFail(err)))
+};
 
 export const fetchTasksOnChangePage = (
   currentPage: number,
@@ -132,11 +148,9 @@ export const fetchSortedTasks = ({
   currentPage,
   sortField,
   sortDirection,
-}: {
-  currentPage: number;
-  sortField: string;
-  sortDirection: string;
-}): ThunkAction<void, AppState, null, Action<string>> => dispatch => {
+}: { currentPage: number,
+  sortField: string,
+  sortDirection: string }): ThunkAction<void, AppState, null, Action<string>> => dispatch => {
   dispatch(fetchTasksStart());
   dispatch(changeSortField(sortField));
   dispatch(changeSortDirection(sortDirection));
@@ -152,22 +166,18 @@ export const fetchSortedTasks = ({
     .catch(err => dispatch(fetchTasksFail(err)));
 };
 
-export const addTask = ({
-  username,
-  email,
-  text,
-}: INewTask): ThunkAction<void, AppState, null, Action<string>> => dispatch => {
+export const addTask = ({ username, email, text }: INewTask): ThunkAction<void, AppState, null, Action<string>> =>
+  dispatch => {
   const task = new FormData();
   task.append('username', username);
   task.append('email', email);
   task.append('text', text);
 
-  axios
-    .post(`${URL}/create?developer=Stanislav`, task)
-    .then(({ data: { message } }: { data: { message: ITask } }) => {
-      console.log(message);
-      dispatch(addTaskSuccess(message));
-    });
+  axios.post(`${URL}/create?developer=Stanislav`, task)
+  .then(({ data: { message } }: { data: { message: ITask } }) => {
+    console.log(message);
+    dispatch(addTaskSuccess(message));
+  })
 };
 
 export const updateTaskText = ({

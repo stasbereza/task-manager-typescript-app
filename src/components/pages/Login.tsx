@@ -10,23 +10,18 @@ import { ISystemState } from '../../redux/actions/types';
 import { signIn } from '../../redux/actions/auth';
 
 interface LoginProps {
-  authenticated: ISystemState['authenticated'];
-  error: ISystemState['error'];
+  authenticated: ISystemState["authenticated"];
+  error: ISystemState["error"];
   history: { push: (arg0: string) => void };
   signIn: (admin: ISystemState['admin']) => void;
 }
 
-// interface LoginState {
+// interface State {
 //   login: string;
 //   password: string;
 // }
 
-const styles: {
-  page: CSSProperties;
-  form: CSSProperties;
-  inputGroup: CSSProperties;
-  inputError: CSSProperties;
-} = {
+const styles: { page: CSSProperties; form: CSSProperties; inputGroup: CSSProperties; inputError: CSSProperties; } = {
   page: {
     display: 'flex',
     alignItems: 'center',
@@ -86,15 +81,11 @@ class LoginPage extends Component<LoginProps> {
   render() {
     const { login, password } = this.state;
     const { error, history } = this.props;
-
     const loginError = error === 'Login is incorrect!' && error;
     const passwordError = error === 'Invalid password!' && error;
     const emptyFieldsError = error === 'All fields must be filled!' && error;
-    
-    const loginInputErrorStyles =
-      loginError || emptyFieldsError ? styles.inputError : undefined;
-    const passInputErrorStyles =
-      passwordError || emptyFieldsError ? styles.inputError : undefined;
+    const loginInputErrorStyles = loginError || emptyFieldsError ? styles.inputError : undefined;
+    const passInputErrorStyles = passwordError || emptyFieldsError ? styles.inputError : undefined;
 
     return (
       <div style={styles.page}>
@@ -117,9 +108,7 @@ class LoginPage extends Component<LoginProps> {
               placeholder="Password"
               onChange={this.handleInputChange}
             />
-            <span style={{ fontSize: 12, color: '#f00' }}>
-              {passwordError || emptyFieldsError}
-            </span>
+            <span style={{ fontSize: 12, color: '#f00' }}>{passwordError || emptyFieldsError}</span>
           </div>
           <div>
             <Button type="submit">Login</Button>

@@ -11,20 +11,18 @@ interface EditableInputProps {
   onEditAbort: () => void;
 }
 
-interface EditableInputState {
-  text: string;
-}
+// interface State { text: string };
 
-export default class EditableInput extends Component<
-  EditableInputProps,
-  EditableInputState
-> {
-  state: EditableInputState = {
+export default class EditableInput extends Component<EditableInputProps> {
+  state = {
     text: this.props.text,
   };
 
-  handleInputChange = ({ target: { value } }: { target: { value: string } }) =>
-    this.setState({ text: value });
+  handleInputChange = (
+    { target: { name, value } }:
+      { target: { name: string, value: string } }
+  ) =>
+    this.setState({ [name]: value });
 
   handleEditSuccess = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -34,13 +34,13 @@ interface TaskProps {
   }) => void;
 }
 
-interface TaskState {
+interface State {
   isBeingEdited: boolean;
   checked: boolean;
 }
 
-class Task extends Component<TaskProps, TaskState> {
-  state: TaskState = { isBeingEdited: false, checked: false };
+class Task extends Component<TaskProps, State> {
+  state: State = { isBeingEdited: false, checked: false };
 
   componentDidMount() {
     if (this.props.task.status === 10) {
@@ -50,7 +50,7 @@ class Task extends Component<TaskProps, TaskState> {
     }
   }
 
-  shouldComponentUpdate(nextProps: TaskProps, nextState: TaskState) {
+  shouldComponentUpdate(nextProps: TaskProps, nextState: State) {
     const propsChanged =
       nextProps.task.text !== this.props.task.text ||
       nextProps.task.status !== this.props.task.status ||

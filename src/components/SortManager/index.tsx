@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 // Components
 import Button from '../shared/Button';
 // Instruments
-import { Sort } from '../../interfaces/Sort.interface';
+import ISort from '../../interfaces/Sort.interface';
 import { AppState } from '../../redux/reducers';
 import { ISortState, IPagerState } from '../../redux/actions/types';
 import { fetchSortedTasks } from '../../redux/actions/tasks';
@@ -17,7 +17,7 @@ interface SortProps {
     currentPage,
     sortField,
     sortDirection,
-  }: Sort) => void;
+  }: ISort) => void;
 }
 
 const styles = {
@@ -73,7 +73,6 @@ export class SortManager extends Component<SortProps> {
 
     const sortButtonsJSX = sortParams.map(sortParam => {
       const { sortField, sortDirection } = sortParam;
-
       const renderSortDirection =
         sortField === currentSortField ? currentSortDirection : '';
 

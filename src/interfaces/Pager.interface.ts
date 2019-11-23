@@ -1,4 +1,4 @@
-export interface PagerProps {
+export default interface PagerProps {
   items: Array<{}>;
   totalItems: number;
   initialPage: number;
